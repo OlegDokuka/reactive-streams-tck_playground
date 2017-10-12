@@ -16,6 +16,7 @@ out
 
 # Gradle
 .gradle
+!gradle
 
 # Package Files #
 *.jar
