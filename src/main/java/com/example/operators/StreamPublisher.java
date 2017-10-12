@@ -98,6 +98,7 @@ public class StreamPublisher<T> implements Flow.Publisher<T> {
                     @Override
                     public void onSubscribe(Flow.Subscription subscription) {
                         System.out.println("Subscribed");
+                        subscription.request(6);
                     }
 
                     @Override
