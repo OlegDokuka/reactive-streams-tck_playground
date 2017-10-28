@@ -75,15 +75,15 @@ public class StreamPublisher<T> implements Flow.Publisher<T> {
             }
 
             for (;;) {
-                if (error.get() != null) {
-                    subscriber.onError(error.get());
-                    return;
-                }
-
                 long e = 0L;
 
                 while (e != n) {
                     if (isTerminated()) {
+                        return;
+                    }
+
+                    if (error.get() != null) {
+                        subscriber.onError(error.get());
                         return;
                     }
 
