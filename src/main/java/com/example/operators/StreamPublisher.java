@@ -49,12 +49,27 @@ public class StreamPublisher<T> implements Flow.Publisher<T> {
                 return;
             }
 
-            if (demand.get() > 0) {
-                demand.getAndAdd(n);
-                return;
-            }
+            for (; ; ) {
+                long currentDemand = demand.getAcquire();
 
-            demand.getAndAdd(n);
+                if (currentDemand == Long.MAX_VALUE) {
+                    return;
+                }
+
+                long adjustedDemand = currentDemand + n;
+
+                if (adjustedDemand < 0L) {
+                    adjustedDemand = Long.MAX_VALUE;
+                }
+
+                if (demand.compareAndSet(currentDemand, adjustedDemand)) {
+                    if (currentDemand > 0) {
+                        return;
+                    }
+
+                    break;
+                }
+            }
 
             for (; demand.get() > 0 && iterator.hasNext() && !isTerminated(); demand.decrementAndGet()) {
                 try {
