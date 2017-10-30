@@ -15,7 +15,7 @@ public class StreamPublisherTest extends PublisherVerification<Integer> {
     private final TestEnvironment env;
 
     public StreamPublisherTest() throws NoSuchFieldException, IllegalAccessException {
-        super(new TestEnvironment());
+        super(new TestEnvironment(400));
 
         Field env = PublisherVerification.class.getDeclaredField("env");
         env.setAccessible(true);
@@ -40,15 +40,12 @@ public class StreamPublisherTest extends PublisherVerification<Integer> {
 
     @Test
     public void required_spec317_mustSupportACumulativePendingElementCountGreaterThenLongMaxValue() throws Throwable {
-        final int totalElements = 3;
+        final int totalElements = 50;
 
         activePublisherTest(totalElements, true, pub -> {
             final TestEnvironment.ManualSubscriber<Integer> sub = env.newManualSubscriber(pub);
             new Thread(() -> sub.request(Long.MAX_VALUE)).start();
             new Thread(() -> sub.request(Long.MAX_VALUE)).start();
-
-            Thread.sleep(env.defaultTimeoutMillis());
-            sub.request(Long.MAX_VALUE);
 
             sub.nextElements(totalElements);
             sub.expectCompletion();
